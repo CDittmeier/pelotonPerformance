@@ -4,6 +4,8 @@
 
 #### Generating Peloton Report Cards in R
 
+()[https://media.giphy.com/media/8kJxY6NgLtfAiMRSAB/giphy.gif]
+
 This project uses the [pelotonR package by bweiher](https://github.com/bweiher/pelotonR) with rmarkdown to generate a performance report using Peloton credentials. 
 
 See [full example of the output for rider MoreSnacksPlz here](https://cdittmeier.github.io/pelotonPerformance/moresnacksplz)
