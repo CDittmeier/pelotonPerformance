@@ -22,3 +22,9 @@ See [full example of the output for rider MoreSnacksPlz here](https://cdittmeier
 
 #### Workout time
 ![](workoutMinutes.png)
+
+
+### Future plans
+
+- Adding Spotify ride data using spotifyr
+- Figuring out a better way to authenticate so that anyone can use it without sharing their login credentials
