@@ -10,7 +10,7 @@ See [full example of the output for rider MoreSnacksPlz here](https://cdittmeier
 
 This project uses the [pelotonR package by bweiher](https://github.com/bweiher/pelotonR) with rmarkdown to generate a performance report using Peloton credentials. 
 
-The idea is to simple run the code replacing the username and password with your Peloton credentials, producing an html output that answers questions like "Which instructor motivates you the most?" or "How is my output trending over the last few weeks". 
+The idea is to simply run the code replacing the username and password with your Peloton credentials, producing an html output that answers questions like "Which instructor motivates you the most?" or "How is my output trending over the last few weeks". 
 
 Code available in rmd file. Replace your credentials in the following section:
 
