@@ -1,0 +1,22 @@
+body {
+  background-image: url('https://imgur.com/eFKLMND.png');
+  background-repeat: no-repeat;
+  background-size: 100%;
+}
+
+* {
+ font-family: 'Quicksand', sans-serif;
+}
+
+.prophoto {
+  border-radius: 50%;
+}
+
+
+.prophoto img {
+  border-radius: 50%;
+}
+
+table img {
+  border-radius: 50%;
+}
