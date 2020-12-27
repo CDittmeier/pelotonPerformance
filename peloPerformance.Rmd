@@ -31,8 +31,8 @@ library(ggimage)
 library(ggrepel)
 library(DT)
 
-Sys.setenv("PELOTON_LOGIN" = "UN")
-Sys.setenv('PELOTON_PASSWORD' = 'pass')
+Sys.setenv("PELOTON_LOGIN" = "Username")
+Sys.setenv("PELOTON_PASSWORD" = "Password")
 
 peloton_auth()
 
@@ -43,87 +43,76 @@ user_id <- me$id
 
 # ---------------- GET
 
-#pel <- get_all_workouts2(user_id, num_workouts = (me$total_workouts - 9)) 
+# pel <- get_all_workouts2(user_id, num_workouts = (me$total_workouts - 9))
 
-pel_workouts <- get_all_workouts(user_id, num_workouts = me$total_workouts-10, joins = "ride,ride.instructor")
+pel_workouts <- get_all_workouts(user_id, num_workouts = me$total_workouts - 10, joins = "ride,ride.instructor")
 
 
 
-pel_perf = data.frame()
-  
-for(i in 1:nrow(pel_workouts)) {
-  
-  one_ride <- pel_workouts[i,]
-  one_ride <- pel_workouts[i,] %>% bind_cols(get_workouts_data(one_ride$id))
-  pel_perf <- rbind(pel_perf,one_ride )
-  
-  pel_workouts2 <- pel_perf %>%
-  rename(init_ride_id = id...8, workout_name=name...11, ride_user_id = user_id...20) %>%
-  tidyr::unnest_wider(ride_instructor) %>%
-  mutate(mins_on_bike = total_video_watch_time_seconds...102 / 60) %>%
-  mutate(ride_date = lubridate::date(created_at...1),ride_rank = as.numeric(leaderboard_rank), percentile = ride_rank/total_leaderboard_users) %>%
-  mutate(ins_image = paste0("<img src='",image_url,"' height='32' ></img>")) %>%
-  mutate(type_emoji = case_when(
-    str_detect(ride_title, "Cool Down") ~ paste("Cool down ", emo::ji("sweat")),
-    ride_fitness_discipline == 'cycling' ~ paste("Cycling ", emo::ji("bike")),
-    ride_fitness_discipline == 'strength' ~ paste("Strength ", emo::ji("flex")),
-    ride_fitness_discipline == 'running' ~ paste("Run ", emo::ji("running")),
-    TRUE ~ ride_fitness_discipline
-  )) %>%
-  mutate(Duration = as.factor(paste((ride_duration / 60), 'mins'))) %>%
-  mutate(average_output = total_work...19 / ride_pedaling_duration, total_output = total_work...19/1000)
+pel_perf <- data.frame() # creating empty df
 
-  
+for (i in 1:nrow(pel_workouts)) {
+  one_ride <- pel_workouts[i, ]
+  Sys.sleep(.2) # Maxing api calls to 5/sec
+  one_ride <- pel_workouts[i, ] %>% bind_cols(get_workouts_data(one_ride$id))
+  pel_perf <- rbind(pel_perf, one_ride)  #get_workout_data() only works well one at a time 
+
 }
 
-        pel_workouts2 <- pel_perf %>%
-            rename(init_ride_id = id...8, workout_name=name...11, ride_user_id = user_id...20) %>%
-            tidyr::unnest_wider(ride_instructor) %>%
-            mutate(mins_on_bike = total_video_watch_time_seconds...102 / 60) %>%
-            mutate(ride_date = lubridate::date(created_at...1),ride_rank = as.numeric(leaderboard_rank), percentile = ride_rank/total_leaderboard_users) %>%
-            mutate(ins_image = paste0("<img src='",image_url,"' height='32' ></img>")) %>%
-            mutate(type_emoji = case_when(
-                str_detect(ride_title, "Cool Down") ~ paste("Cool down ", emo::ji("snow")),
-                ride_fitness_discipline == 'cycling' ~ paste("Cycling ", emo::ji("bike")),
-                ride_fitness_discipline == 'strength' ~ paste("Strength ", emo::ji("flex")),
-                ride_fitness_discipline == 'running' ~ paste("Run ", emo::ji("running")),
-                ride_fitness_discipline == 'running' ~ paste("Run ", emo::ji("exercise")),
-                TRUE ~ ride_fitness_discipline
-            )) %>%
-            mutate(Duration = as.factor(paste((ride_duration / 60), 'mins'))) %>%
-            mutate(PR_flag = case_when(
-                is_total_work_personal_record...9 == TRUE ~ paste("PR!", emo::ji("award")),
-                TRUE ~ '')) %>%
-            mutate(average_output = round(total_work...19 / ride_pedaling_duration), total_output = round(total_work...19/1000)) %>%
-          mutate(weekday = factor(format(as.Date(created_at...1), "%a"), levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")))
-        
-        
-                workout_plot_data = pel_workouts2 %>%
-            mutate(mins_on_bike = total_video_watch_time_seconds...102 / 60) %>%
-            mutate(ride_date = lubridate::date(created_at...1)) %>%
-            rename(ride_id2 = init_ride_id, workout_name2=name) %>%
-            group_by(ride_date) %>%
-            summarise(total_mins_on_bike = sum(mins_on_bike))
-        
-        
-        by_teacher <- pel_workouts2 %>%
-            group_by(name, image_url) %>%
-            summarise(classes = n(), total_mins = sum(mins_on_bike), avg_rating = mean(ride_difficulty_rating_avg), avg_ouput = mean(average_output,na.rm=TRUE)) %>%
-            mutate(ins_image = paste0("<img src='",image_url,"' height='32' ></img>")) %>%
-            arrange(desc(classes))
-        
-        pel_workouts3 <- pel_workouts2 %>%
-                filter(ride_fitness_discipline == 'cycling', !Duration %in% c('5 mins', '10 mins', '15 mins', '20 mins'))
-        
-        
-         by_teacher2 <- pel_workouts3 %>%
-            group_by(name, image_url) %>%
-            summarise(classes = n(), total_mins = sum(mins_on_bike), avg_rating = mean(ride_difficulty_rating_avg), avg_ouput = round(mean(average_output,na.rm=TRUE))) %>%
-            mutate(ins_image = paste0("<img src='",image_url,"' height='32' ></img>")) %>%
-            arrange(desc(avg_ouput))
-        
-        pel_workouts3 <- pel_workouts2 %>%
-                filter(ride_fitness_discipline == 'cycling', !Duration %in% c('5 mins', '10 mins', '15 mins', '20 mins'))
+
+# Correcting names and adding fields to data ----------------------
+
+pel_workouts2 <- pel_perf %>%
+  rename(init_ride_id = id...8, workout_name = name...11, ride_user_id = user_id...20) %>%
+  tidyr::unnest_wider(ride_instructor) %>%
+  mutate(mins_on_bike = total_video_watch_time_seconds...102 / 60) %>%
+  mutate(ride_date = lubridate::date(created_at...1), ride_rank = as.numeric(leaderboard_rank), percentile = ride_rank / total_leaderboard_users) %>%
+  mutate(ins_image = paste0("<img src='", image_url, "' height='32' ></img>")) %>%
+  mutate(type_emoji = case_when(
+    str_detect(ride_title, "Cool Down") ~ paste("Cool down ", emo::ji("snow")),
+    ride_fitness_discipline == "cycling" ~ paste("Cycling ", emo::ji("bike")),
+    ride_fitness_discipline == "strength" ~ paste("Strength ", emo::ji("flex")),
+    ride_fitness_discipline == "running" ~ paste("Run ", emo::ji("running")),
+    ride_fitness_discipline == "running" ~ paste("Run ", emo::ji("exercise")),
+    TRUE ~ ride_fitness_discipline
+  )) %>%
+  mutate(Duration = as.factor(paste((ride_duration / 60), "mins"))) %>%
+  mutate(PR_flag = case_when(
+    is_total_work_personal_record...9 == TRUE ~ paste("PR!", emo::ji("award")),
+    TRUE ~ ""
+  )) %>%
+  mutate(average_output = round(total_work...19 / ride_pedaling_duration), total_output = round(total_work...19 / 1000)) %>%
+  mutate(weekday = factor(format(as.Date(created_at...1), "%a"), levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")))
+
+
+# Summarized workout total time by date  ----------------------
+
+workout_plot_data <- pel_workouts2 %>%
+  mutate(mins_on_bike = total_video_watch_time_seconds...102 / 60) %>%
+  mutate(ride_date = lubridate::date(created_at...1)) %>%
+  rename(ride_id2 = init_ride_id, workout_name2 = name) %>%
+  group_by(ride_date) %>%
+  summarise(total_mins_on_bike = sum(mins_on_bike))
+
+
+# Data frame grouped by instructor  ----------------------
+
+by_teacher <- pel_workouts2 %>%
+  group_by(name, image_url) %>%
+  summarise(classes = n(), total_mins = sum(mins_on_bike), avg_rating = mean(ride_difficulty_rating_avg), avg_ouput = mean(average_output, na.rm = TRUE)) %>%
+  mutate(ins_image = paste0("<img src='", image_url, "' height='32' ></img>")) %>%
+  arrange(desc(classes))
+
+pel_workouts3 <- pel_workouts2 %>%
+  filter(ride_fitness_discipline == "cycling", !Duration %in% c("5 mins", "10 mins", "15 mins", "20 mins")) # this is to isolate longer cycling workouts
+
+
+by_teacher2 <- pel_workouts3 %>%
+  group_by(name, image_url) %>%
+  summarise(classes = n(), total_mins = sum(mins_on_bike), avg_rating = mean(ride_difficulty_rating_avg), avg_ouput = round(mean(average_output, na.rm = TRUE))) %>%
+  mutate(ins_image = paste0("<img src='", image_url, "' height='32' ></img>")) %>%
+  arrange(desc(avg_ouput)) # teacher totals for longer cycling workouts
+
 
 ```
 <iframe src="https://giphy.com/embed/8kJxY6NgLtfAiMRSAB" width="480" height="300" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/onepeloton-peloton-cody-rigsby-its-not-that-deep-boo-8kJxY6NgLtfAiMRSAB">via GIPHY</a></p>
@@ -137,9 +126,9 @@ Username: <b> `r me$username` </b>
 ```{r figurename, echo=FALSE, fig.cap="", out.width = '5%', class.source='prophoto'}
 
 
-knitr::include_graphics(me$image_url, dpi='retina')
-
+knitr::include_graphics(me$image_url, dpi = "retina")
 ```
+
 ```{r figurename2, echo=FALSE, fig.cap="", out.width = '12%', class.source='prophoto'}
 
 knitr::include_graphics("https://press.onepeloton.com/assets/logos/Peloton_Logo_Black_THUMB_ALT.png")
@@ -165,27 +154,28 @@ Here are the `r me$total_workouts` classes you have taken so far. You can sort t
 
 
 ```{r pelotable, echo =F}
-        
+
 
 datatable(pel_workouts2 %>% select(ride_date, type_emoji, ride_title, name, ins_image, Duration, PR_flag, average_output, total_output, ride_rank, total_leaderboard_users, percentile, ride_difficulty_rating_avg),
-                      filter = "top", colnames = c("Date", "Type", "Title", "Instructor", "Image", "mins","PR","Average Output","Total Output","Your Rank", "Total Riders", "Top __%", "Difficulty"), rownames = FALSE, escape = F,
-                      edit = FALSE, options = list(columnDefs = list(list(width = '240px', targets = c(2)),list(width = '100px', targets = c(0,1,3))),language = list(zeroRecords = "No records!"), scrollX = TRUE, escape = F)
-            ) %>%
-                formatString("average_output", suffix = " W") %>%
-                formatString("total_output", suffix = " KJ") %>%
-                formatRound("ride_difficulty_rating_avg", 1) %>%
-                formatRound("ride_rank",0, interval = 3) %>%
-                formatRound("total_leaderboard_users",0, interval = 3) %>%
-                formatPercentage("percentile", 1) %>%
-                formatStyle('percentile',
-                            fontWeight = 'bold') %>%
-                formatStyle('ride_difficulty_rating_avg',
-                            fontWeight = 'bold',
-                            background = styleColorBar(c(0,pel_workouts2$ride_difficulty_rating_avg), 'lightblue'),
-                            backgroundSize = '98% 50%',
-                            backgroundRepeat = 'no-repeat',
-                            backgroundPosition = 'left') 
-        
+  filter = "top", colnames = c("Date", "Type", "Title", "Instructor", "Image", "mins", "PR", "Average Output", "Total Output", "Your Rank", "Total Riders", "Top __%", "Difficulty"), rownames = FALSE, escape = F,
+  edit = FALSE, options = list(columnDefs = list(list(width = "240px", targets = c(2)), list(width = "100px", targets = c(0, 1, 3))), language = list(zeroRecords = "No records!"), scrollX = TRUE, escape = F)
+) %>%
+  formatString("average_output", suffix = " W") %>%
+  formatString("total_output", suffix = " KJ") %>%
+  formatRound("ride_difficulty_rating_avg", 1) %>%
+  formatRound("ride_rank", 0, interval = 3) %>%
+  formatRound("total_leaderboard_users", 0, interval = 3) %>%
+  formatPercentage("percentile", 1) %>%
+  formatStyle("percentile",
+    fontWeight = "bold"
+  ) %>%
+  formatStyle("ride_difficulty_rating_avg",
+    fontWeight = "bold",
+    background = styleColorBar(c(0, pel_workouts2$ride_difficulty_rating_avg), "lightblue"),
+    backgroundSize = "98% 50%",
+    backgroundRepeat = "no-repeat",
+    backgroundPosition = "left"
+  )
 ```
 <iframe src="https://giphy.com/embed/cZFGAMxGODG39fXbiE" width="480" height="300" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/onepeloton-cZFGAMxGODG39fXbiE">via GIPHY</a></p>
 
@@ -197,30 +187,28 @@ Your favorite instructor is <b> `r by_teacher$name[1]` </b>. You've taken <b> `r
 
 
 knitr::include_graphics(by_teacher$image_url[1])
-
 ```
 
 ```{r instructors, echo=FALSE}
-            datatable(by_teacher %>% select(ins_image, name, classes, total_mins, ins_image, avg_rating),
-                      filter = "bottom", colnames = c(" ", "Instructor", "Classes", "Total Minutes", "Average Difficulty"), rownames = FALSE, escape = F,
-                      edit = FALSE, options = list(columnDefs = list(list(width = '8px', targets = c(0))),language = list(zeroRecords = "No records!"), scrollX = TRUE, escape = F)
-            ) %>%
-                formatRound("avg_rating", 1) %>%
-                formatRound("total_mins", 0) %>%
-                formatStyle('total_mins',
-                            fontWeight = 'bold',
-                            background = styleColorBar(c(0,by_teacher$total_mins), 'lightblue'),
-                            backgroundSize = '98% 50%',
-                            backgroundRepeat = 'no-repeat',
-                            backgroundPosition = 'left') %>%
-                formatStyle('classes',
-                            background = styleColorBar(c(0,by_teacher$classes), 'lightgray'),
-                            backgroundSize = '98% 50%',
-                            backgroundRepeat = 'no-repeat',
-                            backgroundPosition = 'left') 
-
-
-
+datatable(by_teacher %>% select(ins_image, name, classes, total_mins, ins_image, avg_rating),
+  filter = "bottom", colnames = c(" ", "Instructor", "Classes", "Total Minutes", "Average Difficulty"), rownames = FALSE, escape = F,
+  edit = FALSE, options = list(columnDefs = list(list(width = "8px", targets = c(0))), language = list(zeroRecords = "No records!"), scrollX = TRUE, escape = F)
+) %>%
+  formatRound("avg_rating", 1) %>%
+  formatRound("total_mins", 0) %>%
+  formatStyle("total_mins",
+    fontWeight = "bold",
+    background = styleColorBar(c(0, by_teacher$total_mins), "lightblue"),
+    backgroundSize = "98% 50%",
+    backgroundRepeat = "no-repeat",
+    backgroundPosition = "left"
+  ) %>%
+  formatStyle("classes",
+    background = styleColorBar(c(0, by_teacher$classes), "lightgray"),
+    backgroundSize = "98% 50%",
+    backgroundRepeat = "no-repeat",
+    backgroundPosition = "left"
+  )
 ```
 
 
@@ -238,17 +226,16 @@ Here is how your average output is trending over time:
 ```{r progress, echo=FALSE, warning=F, message=F}
 
 pel_workouts2 %>%
-                filter(ride_fitness_discipline == 'cycling', !Duration %in% c('5 mins', '10 mins', '15 mins', '20 mins')) %>%
-                ggplot(aes(created_at...1, average_output)) +
-                geom_point(na.rm=TRUE, size = 2, colour = "grey") +
-                geom_smooth() +
-                theme_light() +
-                scale_y_continuous() +
-                ggtitle("Peloton Performance", subtitle = paste('average output for',me$username)) +
-                theme(axis.title = element_text()) + 
-                ylab('Average Output (W)') + 
-                xlab("Ride Date")
-
+  filter(ride_fitness_discipline == "cycling", !Duration %in% c("5 mins", "10 mins", "15 mins", "20 mins")) %>%
+  ggplot(aes(created_at...1, average_output)) +
+  geom_point(na.rm = TRUE, size = 2, colour = "grey") +
+  geom_smooth() +
+  theme_light() +
+  scale_y_continuous() +
+  ggtitle("Peloton Performance", subtitle = paste("average output for", me$username)) +
+  theme(axis.title = element_text()) +
+  ylab("Average Output (W)") +
+  xlab("Ride Date")
 ```
 
 
@@ -259,23 +246,22 @@ Grey dots represent individual workouts, with the darker dots representing the a
 ```{r progress2, echo=FALSE, warning=F, message=F}
 
 pel_workouts2 %>%
-                filter(ride_fitness_discipline == 'cycling', !Duration %in% c('5 mins', '10 mins', '15 mins', '20 mins')) %>%
-                ggplot(aes(weekday, average_output)) +
-                geom_point(na.rm=TRUE, size = 2, colour = "grey") +
-                theme_light() +
-                scale_y_continuous() +
-                ggtitle("Peloton Performance", subtitle = paste('average output for',me$username)) +
-                theme(axis.title = element_text()) + 
-                ylab('Average Output (W)') + 
-                xlab("Weekday") + 
-                stat_summary(
-                  geom = "point",
-                  fun.y = "mean",
-                  col = "black",
-                  size = 3,
-                  fill = "navy"
+  filter(ride_fitness_discipline == "cycling", !Duration %in% c("5 mins", "10 mins", "15 mins", "20 mins")) %>%
+  ggplot(aes(weekday, average_output)) +
+  geom_point(na.rm = TRUE, size = 2, colour = "grey") +
+  theme_light() +
+  scale_y_continuous() +
+  ggtitle("Peloton Performance", subtitle = paste("average output for", me$username)) +
+  theme(axis.title = element_text()) +
+  ylab("Average Output (W)") +
+  xlab("Weekday") +
+  stat_summary(
+    geom = "point",
+    fun.y = "mean",
+    col = "black",
+    size = 3,
+    fill = "navy"
   )
-
 ```
 
 #### Who pushes you the hardest?
@@ -286,23 +272,20 @@ In classes over 20 minutes long, <b> `r by_teacher2$name[1]` </b> pushes you the
 
 
 knitr::include_graphics(by_teacher2$image_url[1])
-
 ```
 
 ```{r instructors2, echo=FALSE}
-            datatable(by_teacher2 %>% select(ins_image, name, classes, avg_ouput),
-                      filter = "bottom", colnames = c("Instructor", " ", "Classes over 20 mins","Average Output"), rownames = FALSE, escape = F,
-                      edit = FALSE, options = list(columnDefs = list(list(width = '8px', targets = c(0))),language = list(zeroRecords = "No records!"), scrollX = TRUE, escape = F)
-            )  %>%
-                formatString("avg_ouput", suffix = " W") %>%
-                formatStyle('avg_ouput',
-                            background = styleColorBar(c(0,by_teacher2$avg_ouput), 'lightgray'),
-                            backgroundSize = '98% 50%',
-                            backgroundRepeat = 'no-repeat',
-                            backgroundPosition = 'left') 
-
-
-
+datatable(by_teacher2 %>% select(ins_image, name, classes, avg_ouput),
+  filter = "bottom", colnames = c("Instructor", " ", "Classes over 20 mins", "Average Output"), rownames = FALSE, escape = F,
+  edit = FALSE, options = list(columnDefs = list(list(width = "8px", targets = c(0))), language = list(zeroRecords = "No records!"), scrollX = TRUE, escape = F)
+) %>%
+  formatString("avg_ouput", suffix = " W") %>%
+  formatStyle("avg_ouput",
+    background = styleColorBar(c(0, by_teacher2$avg_ouput), "lightgray"),
+    backgroundSize = "98% 50%",
+    backgroundRepeat = "no-repeat",
+    backgroundPosition = "left"
+  )
 ```
 
 
@@ -316,15 +299,16 @@ Here is how much time you have spent on the bike on days you worked out:
 ```{r time, echo=FALSE}
 
 workout_plot_data %>%
-                ggplot(aes(ride_date, total_mins_on_bike)) +
-                geom_point(na.rm=TRUE, size =2, color = "navy") + 
-                geom_line(color = "darkgrey") +
-                scale_y_continuous(limits = c(0, 115)) +
-                ggtitle("Peloton Workout Minutes", subtitle = me$username) +
-                ggthemes::theme_fivethirtyeight() +
-                theme(axis.title = element_text()) + 
-                ylab('Minutes on Bike') + 
-                xlab("Date") + scale_x_date(date_breaks = "1 week", date_labels = "%m/%d")
+  ggplot(aes(ride_date, total_mins_on_bike)) +
+  geom_point(na.rm = TRUE, size = 2, color = "navy") +
+  geom_line(color = "darkgrey") +
+  scale_y_continuous(limits = c(0, 115)) +
+  ggtitle("Peloton Workout Minutes", subtitle = me$username) +
+  ggthemes::theme_fivethirtyeight() +
+  theme(axis.title = element_text()) +
+  ylab("Minutes on Bike") +
+  xlab("Date") +
+  scale_x_date(date_breaks = "1 week", date_labels = "%m/%d")
 ```
 
 <br> </br>
