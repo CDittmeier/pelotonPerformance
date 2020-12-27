@@ -4,9 +4,11 @@
 
 #### Generating Peloton Report Cards in R
 
-This project uses the [pelotonR package by bweiher](https://github.com/bweiher/pelotonR) with rmarkdown to generate a performance report using Peloton credentials. In the future, it would likely be better to use the "download workouts" output from the peloton website in order to make the report accessible. 
+This project uses the [pelotonR package by bweiher](https://github.com/bweiher/pelotonR) with rmarkdown to generate a performance report using Peloton credentials. 
 
 See [full example of the output for rider MoreSnacksPlz here](https://cdittmeier.github.io/pelotonPerformance/moresnacksplz)
+
+Code available in rmd file
 
 ### The report
 
@@ -30,3 +32,5 @@ See [full example of the output for rider MoreSnacksPlz here](https://cdittmeier
 
 - Adding Spotify ride data using spotifyr
 - Figuring out a better way to authenticate so that anyone can use it without sharing their login credentials
+- It would likely be better to use the "download workouts" output from the peloton website in order to make the report accessible. 
+- Scheduling updates / push to GitHub pages
