@@ -9,19 +9,19 @@ See [full example of the output for rider MoreSnacksPlz here](https://cdittmeier
 ### The report
 
 #### Basic summary
-![](reportExample.png)
+![](man/figures/reportExample.png)
 
 #### Favorite instructor
-![](favoriteInstructor.png)
+![](man/figures/favoriteInstructor.png)
 
 #### Performance
-![](performanceExample.png)
+![](man/figures/performanceExample.png)
 
 #### Best motivator
-![](bestMotivator.png)
+![](man/figures/bestMotivator.png)
 
 #### Workout time
-![](workoutMinutes.png)
+![](man/figures/workoutMinutes.png)
 
 
 ### Future plans
