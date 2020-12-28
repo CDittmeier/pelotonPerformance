@@ -135,7 +135,7 @@ knitr::include_graphics("https://press.onepeloton.com/assets/logos/Peloton_Logo_
 ```
 </p>
 
-
+<hr> </hr>
 
 ### The basics
 
@@ -144,7 +144,7 @@ knitr::include_graphics("https://press.onepeloton.com/assets/logos/Peloton_Logo_
 You've spent <b> `r round(sum(pel_workouts2$total_video_watch_time_seconds...22)/60/60)` hours </b> working out on your Peloton! You have completed `r me$total_workouts` classes on the app. Here are some of your basic performance stats, with 0-20 min classes excluded to filter out cool down classes and short rides. On average, you finish in the <b> top `r percent(round(mean(pel_workouts3$percentile,na.rm=TRUE),2))` </b> of riders in your classes. Your average output is 
 <b> `r round(mean(pel_workouts3$average_output,na.rm=TRUE))` W</b>. Your mean total output in +20 min rides is <b> `r round(mean(pel_workouts3$total_output,na.rm=TRUE))` KJ</b> Nice work! 
 
-
+<hr> </hr>
 
 ### Classes taken 
 `r emo::ji("bike")`
@@ -177,8 +177,8 @@ datatable(pel_workouts2 %>% select(ride_date, type_emoji, ride_title, name, ins_
     backgroundPosition = "left"
   )
 ```
-<iframe src="https://giphy.com/embed/cZFGAMxGODG39fXbiE" width="480" height="300" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/onepeloton-cZFGAMxGODG39fXbiE">via GIPHY</a></p>
 
+<hr> </hr>
 ### Favorite Instructors
 
 Your favorite instructor is <b> `r by_teacher$name[1]` </b>. You've taken <b> `r by_teacher$classes[1]` </b> of their classes! 
@@ -215,8 +215,7 @@ datatable(by_teacher %>% select(ins_image, name, classes, total_mins, ins_image,
 
 
 
-<iframe src="https://giphy.com/embed/vlcraP832v9Uj5yhCq" width="480" height="300" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/onepeloton-vlcraP832v9Uj5yhCq">via GIPHY</a></p>
-
+<hr> </hr>
 ### Performance
 `r emo::ji("bicep")`
 `r emo::ji("smile")`
@@ -238,7 +237,7 @@ pel_workouts2 %>%
   xlab("Ride Date")
 ```
 
-
+<hr> </hr>
 #### Average output by day of the week
 
 Grey dots represent individual workouts, with the darker dots representing the average for that day of the week
@@ -263,7 +262,7 @@ pel_workouts2 %>%
     fill = "navy"
   )
 ```
-
+<hr> </hr>
 #### Who pushes you the hardest?
 
 In classes over 20 minutes long, <b> `r by_teacher2$name[1]` </b> pushes you the hardest! Your output is  <b> `r by_teacher2$avg_ouput[1]` W</b> in their classes! 
@@ -289,8 +288,8 @@ datatable(by_teacher2 %>% select(ins_image, name, classes, avg_ouput),
 ```
 
 
-<iframe src="https://giphy.com/embed/4KsPl3JpalRibfSngZ" width="480" height="300" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/onepeloton-4KsPl3JpalRibfSngZ">via GIPHY</a></p>
 
+<hr> </hr>
 ### Schedule
 `r emo::ji("time")`
 
