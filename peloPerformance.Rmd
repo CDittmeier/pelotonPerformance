@@ -1,6 +1,6 @@
 ---
 title: "Peloton Progress Report"
-date: "12/26/2020"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
   html_document:
     css: CSSBackgrounds.css
