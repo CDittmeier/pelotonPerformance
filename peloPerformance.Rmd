@@ -177,7 +177,7 @@ datatable(pel_workouts2 %>% select(ride_date, type_emoji, ride_title, name, ins_
                             backgroundPosition = 'left') 
         
 ```
-<iframe src="https://giphy.com/embed/cZFGAMxGODG39fXbiE" width="480" height="300" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/onepeloton-cZFGAMxGODG39fXbiE">via GIPHY</a></p>
+
 
 <hr>
 ### Favorite Instructors
@@ -219,7 +219,6 @@ knitr::include_graphics(by_teacher$image_url[1])
 
 
 
-<iframe src="https://giphy.com/embed/vlcraP832v9Uj5yhCq" width="480" height="300" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/onepeloton-vlcraP832v9Uj5yhCq">via GIPHY</a></p>
 
 <hr>
 ### Performance
@@ -298,7 +297,6 @@ knitr::include_graphics(by_teacher2$image_url[1])
 ```
 
 
-<iframe src="https://giphy.com/embed/4KsPl3JpalRibfSngZ" width="480" height="300" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/onepeloton-4KsPl3JpalRibfSngZ">via GIPHY</a></p>
 
 <hr>
 ### Schedule
