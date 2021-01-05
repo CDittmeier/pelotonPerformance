@@ -17,7 +17,6 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
 library(prettydoc)
 library(pelotonR)
 library(tidyverse)
@@ -31,37 +30,25 @@ library(ggimage)
 library(ggrepel)
 library(DT)
 
-Sys.setenv("PELOTON_LOGIN" = "Username")
-Sys.setenv("PELOTON_PASSWORD" = "Password")
-
+Sys.setenv("PELOTON_LOGIN" = "username")
+Sys.setenv("PELOTON_PASSWORD" = "password")
 peloton_auth()
-
 # ----------------------- get data about yourself
-
 me <- get_my_info() # peloton_api("api/me")
 user_id <- me$id
-
 # ---------------- GET
 
-# pel <- get_all_workouts2(user_id, num_workouts = (me$total_workouts - 9))
 
-pel_workouts <- get_all_workouts(user_id, num_workouts = me$total_workouts - 10, joins = "ride,ride.instructor")
-
-
+pel_workouts <- get_all_workouts(user_id, num_workouts = me$total_workouts, joins = "ride,ride.instructor")
 
 pel_perf <- data.frame() # creating empty df
-
 for (i in 1:nrow(pel_workouts)) {
   one_ride <- pel_workouts[i, ]
   Sys.sleep(.2) # Maxing api calls to 5/sec
   one_ride <- pel_workouts[i, ] %>% bind_cols(get_workouts_data(one_ride$id))
   pel_perf <- rbind(pel_perf, one_ride)  #get_workout_data() only works well one at a time 
-
 }
-
-
 # Correcting names and adding fields to data ----------------------
-
 pel_workouts2 <- pel_perf %>%
   rename(init_ride_id = id...8, workout_name = name...11, ride_user_id = user_id...20) %>%
   tidyr::unnest_wider(ride_instructor) %>%
@@ -83,37 +70,26 @@ pel_workouts2 <- pel_perf %>%
   )) %>%
   mutate(average_output = round(total_work...19 / ride_pedaling_duration), total_output = round(total_work...19 / 1000)) %>%
   mutate(weekday = factor(format(as.Date(created_at...1), "%a"), levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")))
-
-
 # Summarized workout total time by date  ----------------------
-
 workout_plot_data <- pel_workouts2 %>%
   mutate(mins_on_bike = total_video_watch_time_seconds...102 / 60) %>%
   mutate(ride_date = lubridate::date(created_at...1)) %>%
   rename(ride_id2 = init_ride_id, workout_name2 = name) %>%
   group_by(ride_date) %>%
   summarise(total_mins_on_bike = sum(mins_on_bike))
-
-
 # Data frame grouped by instructor  ----------------------
-
 by_teacher <- pel_workouts2 %>%
   group_by(name, image_url) %>%
   summarise(classes = n(), total_mins = sum(mins_on_bike), avg_rating = mean(ride_difficulty_rating_avg), avg_ouput = mean(average_output, na.rm = TRUE)) %>%
   mutate(ins_image = paste0("<img src='", image_url, "' height='32' ></img>")) %>%
   arrange(desc(classes))
-
 pel_workouts3 <- pel_workouts2 %>%
   filter(ride_fitness_discipline == "cycling", !Duration %in% c("5 mins", "10 mins", "15 mins", "20 mins")) # this is to isolate longer cycling workouts
-
-
 by_teacher2 <- pel_workouts3 %>%
   group_by(name, image_url) %>%
   summarise(classes = n(), total_mins = sum(mins_on_bike), avg_rating = mean(ride_difficulty_rating_avg), avg_ouput = round(mean(average_output, na.rm = TRUE))) %>%
   mutate(ins_image = paste0("<img src='", image_url, "' height='32' ></img>")) %>%
   arrange(desc(avg_ouput)) # teacher totals for longer cycling workouts
-
-
 ```
 <iframe src="https://giphy.com/embed/8kJxY6NgLtfAiMRSAB" width="480" height="300" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/onepeloton-peloton-cody-rigsby-its-not-that-deep-boo-8kJxY6NgLtfAiMRSAB">via GIPHY</a></p>
 
@@ -124,13 +100,9 @@ Username: <b> `r me$username` </b>
 <p class="prophoto"> 
 
 ```{r figurename, echo=FALSE, fig.cap="", out.width = '5%', class.source='prophoto'}
-
-
 knitr::include_graphics(me$image_url, dpi='retina')
-
 ```
 ```{r figurename2, echo=FALSE, fig.cap="", out.width = '12%', class.source='prophoto'}
-
 knitr::include_graphics("https://press.onepeloton.com/assets/logos/Peloton_Logo_Black_THUMB_ALT.png")
 ```
 </p>
@@ -156,7 +128,6 @@ Here are the `r me$total_workouts` classes you have taken so far. You can sort t
 
 ```{r pelotable, echo =F}
         
-
 datatable(pel_workouts2 %>% select(ride_date, type_emoji, ride_title, name, ins_image, Duration, PR_flag, average_output, total_output, ride_rank, total_leaderboard_users, percentile, ride_difficulty_rating_avg),
                       filter = "top", colnames = c("Date", "Type", "Title", "Instructor", "Image", "mins","PR","Average Output","Total Output","Your Rank", "Total Riders", "Top __%", "Difficulty"), rownames = FALSE, escape = F,
                       edit = FALSE, options = list(columnDefs = list(list(width = '240px', targets = c(2)),list(width = '100px', targets = c(0,1,3))),language = list(zeroRecords = "No records!"), scrollX = TRUE, escape = F)
@@ -186,10 +157,7 @@ datatable(pel_workouts2 %>% select(ride_date, type_emoji, ride_title, name, ins_
 Your favorite instructor is <b> `r by_teacher$name[1]` </b>. You've taken <b> `r by_teacher$classes[1]` </b> of their classes! 
 
 ```{r figurename3, echo=FALSE, fig.cap="", out.width = '20%', class.source='prophoto'}
-
-
 knitr::include_graphics(by_teacher$image_url[1])
-
 ```
 
 ```{r instructors, echo=FALSE}
@@ -210,9 +178,6 @@ knitr::include_graphics(by_teacher$image_url[1])
                             backgroundSize = '98% 50%',
                             backgroundRepeat = 'no-repeat',
                             backgroundPosition = 'left') 
-
-
-
 ```
 
 
@@ -228,7 +193,6 @@ knitr::include_graphics(by_teacher$image_url[1])
 Here is how your average output is trending over time:
 
 ```{r progress, echo=FALSE, warning=F, message=F}
-
 pel_workouts2 %>%
                 filter(ride_fitness_discipline == 'cycling', !Duration %in% c('5 mins', '10 mins', '15 mins', '20 mins')) %>%
                 ggplot(aes(created_at...1, average_output)) +
@@ -240,7 +204,6 @@ pel_workouts2 %>%
                 theme(axis.title = element_text()) + 
                 ylab('Average Output (W)') + 
                 xlab("Ride Date")
-
 ```
 
 <hr>
@@ -248,7 +211,6 @@ pel_workouts2 %>%
 Grey dots represent individual workouts, with the darker dots representing the average for that day of the week
 
 ```{r progress2, echo=FALSE, warning=F, message=F}
-
 pel_workouts2 %>%
                 filter(ride_fitness_discipline == 'cycling', !Duration %in% c('5 mins', '10 mins', '15 mins', '20 mins')) %>%
                 ggplot(aes(weekday, average_output)) +
@@ -266,7 +228,6 @@ pel_workouts2 %>%
                   size = 3,
                   fill = "navy"
   )
-
 ```
 <hr>
 #### Who pushes you the hardest?
@@ -274,10 +235,7 @@ pel_workouts2 %>%
 In classes over 20 minutes long, <b> `r by_teacher2$name[1]` </b> pushes you the hardest! Your output is  <b> `r by_teacher2$avg_ouput[1]` W</b> in their classes! 
 
 ```{r figurename4, echo=FALSE, fig.cap="", out.width = '20%', class.source='prophoto'}
-
-
 knitr::include_graphics(by_teacher2$image_url[1])
-
 ```
 
 ```{r instructors2, echo=FALSE}
@@ -291,9 +249,6 @@ knitr::include_graphics(by_teacher2$image_url[1])
                             backgroundSize = '98% 50%',
                             backgroundRepeat = 'no-repeat',
                             backgroundPosition = 'left') 
-
-
-
 ```
 
 
@@ -306,7 +261,6 @@ knitr::include_graphics(by_teacher2$image_url[1])
 Here is how much time you have spent on the bike on days you worked out:
 
 ```{r time, echo=FALSE}
-
 workout_plot_data %>%
                 ggplot(aes(ride_date, total_mins_on_bike)) +
                 geom_point(na.rm=TRUE, size =2, color = "navy") + 
@@ -314,7 +268,7 @@ workout_plot_data %>%
                 scale_y_continuous(limits = c(0, 115)) +
                 ggtitle("Peloton Workout Minutes", subtitle = me$username) +
                 ggthemes::theme_fivethirtyeight() +
-                theme(axis.title = element_text()) + 
+                theme(axis.title = element_text(),axis.text.x = element_text(angle = 90)) + 
                 ylab('Minutes on Bike') + 
                 xlab("Date") + scale_x_date(date_breaks = "1 week", date_labels = "%m/%d")
 ```
