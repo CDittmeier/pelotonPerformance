@@ -4,6 +4,8 @@
 
 See [full example of the output for rider MoreSnacksPlz here](https://cdittmeier.github.io/pelotonPerformance/moresnacksplz)
 
+Shiny app version [here]( https://streamftrs.shinyapps.io/pelotonApp)
+
 #### Generating Peloton Report Cards in R
 
 ![](https://media.giphy.com/media/8kJxY6NgLtfAiMRSAB/giphy.gif)
